@@ -1,0 +1,56 @@
+clc
+clear all
+
+original = imread('C:\Users\visha\Google Drive\Major_Konoha.png');
+small= imread('C:\Users\visha\Google Drive\Major_Konoha2.png');
+
+%converting 3D images into 2D images
+image=rgb2gray(imread('C:\Users\visha\Google Drive\Major_Konoha.png'));
+image2= rgb2gray(imread('C:\Users\visha\Google Drive\Major_Konoha2.png'));
+
+imshow(original)
+imshow(small)
+size(image)
+size(image2)
+
+
+[no_rows_org no_colls_org]= size(image)
+[no_rows_small no_colls_small]= size(image2)
+
+%Performing normalized cross-correlation
+cc= normxcorr2(image2,image);
+imshow(cc)
+size(cc)
+
+%cropping the extra pixels
+cc= imcrop(cc,[no_colls_small no_rows_small no_colls_org no_rows_org]);
+imshow(cc)
+size(cc)
+
+%displaying result as a surface
+surf(cc)
+shading flat
+
+%finding the highest correlation coefficient value
+i_max= max(abs(cc(:)));
+  
+
+%finding the indices of the highest correlation coefficient value
+no_rows= size(cc,1)
+no_colls=size(cc,2)
+for i=1:1:no_rows
+    for j=1:1:no_colls
+        if cc(i,j)==i_max
+            a=i;
+            b=j;
+            fprintf('%f,%f',a,b);
+            break
+        end
+    end
+end
+
+%inserting a bounding box around the object detected
+rectangle=[b a (b+no_colls_small) a (b+no_colls_small) (a+no_rows_small) b (a+no_rows_small)];
+ans = insertShape(original,'FilledPolygon',{rectangle},'Color',"green","Opacity",0.6);
+
+imshow(ans)
